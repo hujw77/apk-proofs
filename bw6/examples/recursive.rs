@@ -329,12 +329,12 @@ fn main() {
 
     let log_n: usize = args
         .next()
-        .unwrap_or("4".to_string())
+        .unwrap_or("8".to_string())
         .parse()
         .expect("invalid LOG_N");
     let n_eras: usize = args
         .next()
-        .unwrap_or("10".to_string())
+        .unwrap_or("2".to_string())
         .parse()
         .expect("invalid N_ERAS");
 
