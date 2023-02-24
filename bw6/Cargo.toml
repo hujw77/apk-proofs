@@ -20,7 +20,7 @@ ark-bls12-377 = { version = "0.4.0-alpha.2", default-features = false, features 
 fflonk = { git = "https://github.com/w3f/fflonk" }
 
 rand = "0.8"
-merlin = "3.0"
+merlin = { verison = "3.0", features = ["debug-transcript"]}
 blake2 = "0.9"
 rayon = { version = "1", optional = true }
 
@@ -51,3 +51,4 @@ default = []
 std = ["ark-std/std", "ark-ff/std", "ark-ec/std", "ark-poly/std", "ark-serialize/std"]
 parallel = ["std", "ark-std/parallel", "ark-ff/parallel", "ark-ec/parallel", "ark-poly/parallel", "fflonk/parallel", "rayon"]
 print-trace = ["ark-std/print-trace"]
+debug-transcript = ["merlin/debug-transcript"]
