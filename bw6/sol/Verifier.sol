@@ -39,7 +39,8 @@ contract Verifier {
         Radix2EvaluationDomain memory domain
     ) internal pure returns(
         LagrangeEvaluations memory evals_at_zeta
-    ) {}
+    ) {
+    }
 
     function validate_evaluations(
         PackedProof calldata proof,

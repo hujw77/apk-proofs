@@ -85,6 +85,7 @@ pub fn lagrange_evaluations<F: FftField>(
 ) -> LagrangeEvaluations<F> {
     // TODO: reuse this code with barycentric_eval methods
     let mut z_n = z; // z^n, n=2^d - domain size, so squarings only
+                     // mod_exp (0x05)
     for _ in 0..domain.log_size_of_group {
         z_n.square_in_place();
     }
@@ -93,6 +94,7 @@ pub fn lagrange_evaluations<F: FftField>(
     let z_n_minus_one_div_n = z_n_minus_one * domain.size_inv;
 
     let mut inv = [z - F::one(), domain.group_gen * z - F::one()];
+    // inv_mod
     batch_inversion(&mut inv);
     LagrangeEvaluations {
         vanishing_polynomial: z_n_minus_one,
