@@ -88,6 +88,12 @@ impl Verifier {
             proof,
             SuccinctAccountableRegisterEvaluations::POLYS_OPENED_AT_ZETA,
         );
+        // println!("r: {}", challenges.r);
+        // println!("phi: {}", challenges.phi);
+        // println!("zeta: {}", challenges.zeta);
+        // (0..SuccinctAccountableRegisterEvaluations::POLYS_OPENED_AT_ZETA).for_each(|i| {
+        //     println!("nus: {}", challenges.nus[i]);
+        // });
         let evals_at_zeta = utils::lagrange_evaluations(challenges.zeta, self.domain);
 
         self.validate_evaluations::<
@@ -250,8 +256,21 @@ impl Verifier {
         pks_comm: KeysetCommitment,
         mut empty_transcript: Transcript,
     ) -> Self {
+        // println!("log_domain_size {}", pks_comm.log_domain_size);
         let domain_size = 2usize.pow(pks_comm.log_domain_size);
         let domain = Radix2EvaluationDomain::<Fr>::new(domain_size).unwrap();
+        println!("domain.size: {}", domain.size);
+        println!("domain.log_size_of_group: {}", domain.log_size_of_group);
+        println!(
+            "domain.size_as_field_element: {}",
+            domain.size_as_field_element
+        );
+        println!("domain.size_inv: {}", domain.size_inv);
+        println!("domain.group_gen: {}", domain.group_gen);
+        println!("domain.group_gen_inv: {}", domain.group_gen_inv);
+        println!("domain.offset: {}", domain.offset);
+        println!("domain.offset_inv: {}", domain.offset_inv);
+        println!("domain.offset_pow_size: {}", domain.offset_pow_size);
         assert_eq!(domain.size(), domain_size);
         empty_transcript.set_protocol_params(&domain, &kzg_vk);
         empty_transcript.set_keyset_commitment(&pks_comm);
