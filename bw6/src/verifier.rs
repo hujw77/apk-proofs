@@ -203,6 +203,7 @@ impl Verifier {
         };
         let openings = vec![opening_at_zeta, opening_at_zeta_omega];
         let coeffs = [Fr::one(), u128::rand(fsrng).into()];
+        println!("coeffs.1: {}", coeffs[1]);
         let acc_opening = NewKzgBw6::accumulate(openings, &coeffs, &self.kzg_pvk);
         assert!(
             NewKzgBw6::verify_accumulated(acc_opening.clone(), &self.kzg_pvk),
@@ -259,19 +260,19 @@ impl Verifier {
         // println!("log_domain_size {}", pks_comm.log_domain_size);
         let domain_size = 2usize.pow(pks_comm.log_domain_size);
         let domain = Radix2EvaluationDomain::<Fr>::new(domain_size).unwrap();
-        println!("domain.size: {}", domain.size);
-        println!("domain.log_size_of_group: {}", domain.log_size_of_group);
-        println!(
-            "domain.size_as_field_element: {}",
-            domain.size_as_field_element
-        );
-        println!("domain.size_inv: {}", domain.size_inv);
-        println!("domain.group_gen: {}", domain.group_gen);
-        println!("domain.group_gen_inv: {}", domain.group_gen_inv);
-        println!("domain.offset: {}", domain.offset);
-        println!("domain.offset_inv: {}", domain.offset_inv);
-        println!("domain.offset_pow_size: {}", domain.offset_pow_size);
-        assert_eq!(domain.size(), domain_size);
+        // println!("domain.size: {}", domain.size);
+        // println!("domain.log_size_of_group: {}", domain.log_size_of_group);
+        // println!(
+        //     "domain.size_as_field_element: {}",
+        //     domain.size_as_field_element
+        // );
+        // println!("domain.size_inv: {}", domain.size_inv);
+        // println!("domain.group_gen: {}", domain.group_gen);
+        // println!("domain.group_gen_inv: {}", domain.group_gen_inv);
+        // println!("domain.offset: {}", domain.offset);
+        // println!("domain.offset_inv: {}", domain.offset_inv);
+        // println!("domain.offset_pow_size: {}", domain.offset_pow_size);
+        // assert_eq!(domain.size(), domain_size);
         empty_transcript.set_protocol_params(&domain, &kzg_vk);
         empty_transcript.set_keyset_commitment(&pks_comm);
 
