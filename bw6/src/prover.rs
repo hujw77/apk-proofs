@@ -4,7 +4,6 @@ use ark_poly::{EvaluationDomain, Polynomial};
 use fflonk::pcs::{PCS, PcsParams};
 use fflonk::pcs::kzg::params::KzgCommitterKey;
 use fflonk::pcs::kzg::urs::URS;
-use merlin::Transcript;
 
 use crate::{AccountablePublicInput, Bitmask, CountingProof, CountingPublicInput, KeysetCommitment, NewKzgBw6, PackedProof, Proof, PublicInput, SimpleProof};
 use crate::domains::Domains;
@@ -14,13 +13,13 @@ use crate::piop::counting::CountingScheme;
 use crate::piop::packed::PackedRegisterBuilder;
 use crate::piop::ProverProtocol;
 use crate::piop::RegisterPolynomials;
-use crate::transcript::ApkTranscript;
+use crate::transcript::{ApkTranscript, SimpleTranscript};
 
 pub struct Prover {
     domains: Domains,
     keyset: Keyset,
     kzg_pk: KzgCommitterKey<ark_bw6_761::G1Affine>,
-    preprocessed_transcript: Transcript,
+    preprocessed_transcript: SimpleTranscript,
 }
 
 
@@ -31,7 +30,7 @@ impl Prover {
         keyset_comm: &KeysetCommitment,
         // prover needs both KZG pk and vk, as it commits to the latter to bind the srs
         kzg_params: URS<BW6_761>,
-        mut empty_transcript: Transcript,
+        mut empty_transcript: SimpleTranscript,
     ) -> Self {
         let domains = Domains::new(keyset.domain.size());
 

@@ -1,11 +1,17 @@
 //! Succinct proofs of a BLS public key being an aggregate key of a subset of signers given a commitment to the set of all signers' keys
 
-use ark_bls12_377::G1Affine;
+use ark_bls12_377::{
+    g1::Config as G1Config, g2::Config as G2Config, G1Affine, G1Projective, G2Projective,
+};
 use ark_bw6_761::{Fr, BW6_761};
-use ark_ec::CurveGroup;
-use ark_ff::MontFp;
+use ark_ec::{
+    hashing::{curve_maps::wb::WBMap, map_to_curve_hasher::MapToCurveBasedHasher, HashToCurve},
+    models::short_weierstrass::Projective,
+};
+use ark_ff::{field_hashers::DefaultFieldHasher, MontFp};
 use ark_serialize::{CanonicalDeserialize, CanonicalSerialize};
 use fflonk::pcs::kzg::KZG;
+use sha2::Sha256;
 
 pub use bitmask::Bitmask;
 pub use keyset::{Keyset, KeysetCommitment};
@@ -20,6 +26,7 @@ use crate::piop::{RegisterCommitments, RegisterEvaluations};
 
 pub use self::prover::*;
 pub use self::verifier::*;
+pub use crate::transcript::{SimpleTranscript, SimpleTranscriptRng};
 
 pub mod endo;
 mod prover;
@@ -40,6 +47,9 @@ pub mod setup;
 pub mod test_helpers; //TODO: cfgtest
 
 type NewKzgBw6 = KZG<BW6_761>;
+
+pub const DST_G1: &[u8] = b"APK-PROOF-with-BLS12377G1_XMD:SHA-256_SSWU_RO_";
+pub const DST_G2: &[u8] = b"APK-PROOF-with-BLS12377G2_XMD:SHA-256_SSWU_RO_";
 
 // TODO: 1. From trait?
 // TODO: 2. remove refs/clones
@@ -109,14 +119,24 @@ fn point_in_g1_complement() -> ark_bls12_377::G1Affine {
     ark_bls12_377::G1Affine::new_unchecked(H_X, H_Y)
 }
 
-// TODO: switch to better hash to curve when available
-pub fn hash_to_curve<G: CurveGroup>(message: &[u8]) -> G {
-    use ark_std::rand::SeedableRng;
-    use blake2::Digest;
+pub fn hash_to_curve_g1(message: &[u8]) -> G1Projective {
+    let wb_to_curve_hasher = MapToCurveBasedHasher::<
+        Projective<G1Config>,
+        DefaultFieldHasher<Sha256>,
+        WBMap<G1Config>,
+    >::new(DST_G1)
+    .unwrap();
+    wb_to_curve_hasher.hash(message).unwrap().into()
+}
 
-    let seed = blake2::Blake2s::digest(message);
-    let rng = &mut rand::rngs::StdRng::from_seed(seed.into());
-    G::rand(rng)
+pub fn hash_to_curve_g2(message: &[u8]) -> G2Projective {
+    let wb_to_curve_hasher = MapToCurveBasedHasher::<
+        Projective<G2Config>,
+        DefaultFieldHasher<Sha256>,
+        WBMap<G2Config>,
+    >::new(DST_G2)
+    .unwrap();
+    wb_to_curve_hasher.hash(message).unwrap().into()
 }
 
 #[cfg(test)]
