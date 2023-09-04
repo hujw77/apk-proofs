@@ -10,20 +10,20 @@ use fflonk::pcs::RawVerifierKey;
 use merlin::{Transcript, TranscriptRng};
 
 use crate::{AccountablePublicInput, CountingProof, CountingPublicInput, endo, KeysetCommitment, NewKzgBw6, PackedProof, Proof, PublicInput, RegisterCommitments, SimpleProof, utils};
-use crate::fsrng::fiat_shamir_rng;
+use crate::fsrng::{fiat_shamir_rng, simple_fiat_shamir_rng};
 use crate::piop::{RegisterEvaluations, VerifierProtocol};
 use crate::piop::affine_addition::{AffineAdditionEvaluations, PartialSumsAndBitmaskCommitments, PartialSumsCommitments};
 use crate::piop::basic::AffineAdditionEvaluationsWithoutBitmask;
 use crate::piop::bitmask_packing::{BitmaskPackingCommitments, SuccinctAccountableRegisterEvaluations};
 use crate::piop::counting::{CountingCommitments, CountingEvaluations};
-use crate::transcript::ApkTranscript;
+use crate::transcript::{ApkTranscript, SimpleTranscript, SimpleTranscriptRng};
 use crate::utils::LagrangeEvaluations;
 
 pub struct Verifier {
     domain: Radix2EvaluationDomain<Fr>,
     kzg_pvk: KzgVerifierKey<BW6_761>,
     pks_comm: KeysetCommitment,
-    preprocessed_transcript: Transcript,
+    preprocessed_transcript: SimpleTranscript,
 }
 
 struct Challenges {
@@ -116,7 +116,7 @@ impl Verifier {
         proof: &Proof<E, C, AC>,
         protocol: &P,
         challenges: &Challenges,
-        fsrng: &mut TranscriptRng,
+        fsrng: &mut SimpleTranscriptRng,
         evals_at_zeta: &LagrangeEvaluations<Fr>,
     ) -> ()
         where
@@ -182,7 +182,7 @@ impl Verifier {
         end_timer!(t_kzg);
     }
 
-    fn restore_challenges<E, C, AC>(&self, public_input: &impl PublicInput, proof: &Proof<E, C, AC>, batch_size: usize) -> (Challenges, TranscriptRng)
+    fn restore_challenges<E, C, AC>(&self, public_input: &impl PublicInput, proof: &Proof<E, C, AC>, batch_size: usize) -> (Challenges, SimpleTranscriptRng)
         where
             AC: RegisterCommitments,
             C: RegisterCommitments,
@@ -198,13 +198,13 @@ impl Verifier {
         let zeta = transcript.get_evaluation_point();
         transcript.append_evaluations(&proof.register_evaluations, &proof.q_zeta, &proof.r_zeta_omega);
         let nus = transcript.get_kzg_aggregation_challenges(batch_size);
-        (Challenges { r, phi, zeta, nus }, fiat_shamir_rng(&mut transcript))
+        (Challenges { r, phi, zeta, nus }, simple_fiat_shamir_rng(&mut transcript))
     }
 
     pub fn new(
         kzg_vk: RawKzgVerifierKey<BW6_761>,
         pks_comm: KeysetCommitment,
-        mut empty_transcript: Transcript,
+        mut empty_transcript: SimpleTranscript,
     ) -> Self {
         let domain_size = 2usize.pow(pks_comm.log_domain_size);
         let domain = Radix2EvaluationDomain::<Fr>::new(domain_size).unwrap();

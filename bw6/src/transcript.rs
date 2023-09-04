@@ -4,6 +4,9 @@ use ark_poly::Radix2EvaluationDomain;
 use ark_serialize::CanonicalSerialize;
 use fflonk::pcs::kzg::params::RawKzgVerifierKey;
 use merlin::Transcript;
+use rand::RngCore;
+use tiny_keccak::{Hasher, Keccak};
+use rand_core;
 
 use crate::{KeysetCommitment, PublicInput};
 use crate::piop::{RegisterCommitments, RegisterEvaluations};
@@ -81,4 +84,89 @@ impl ApkTranscript for Transcript {
         message.serialize_compressed(&mut buf).unwrap();
         self.append_message(label, &buf);
     }
+}
+
+#[derive(Debug, Clone)]
+pub struct SimpleTranscript {
+    buffer: Vec<u8>,
+}
+
+impl SimpleTranscript {
+    pub fn new(message: &[u8]) -> Self {
+        let buffer = Vec::new();
+        let mut transcript = SimpleTranscript { buffer };
+        transcript.update(message);
+        transcript
+    }
+
+    pub fn update(&mut self, message: &[u8]) {
+        self.buffer.append(&mut message.to_vec());
+    }
+
+    pub fn reset(&mut self) {
+        self.buffer.clear();
+    }
+
+    pub fn finalize(&self, dest: &mut [u8]) {
+        let mut keccak = Keccak::v256();
+        keccak.update(&self.buffer);
+        keccak.finalize(dest);
+    }
+}
+
+
+impl ApkTranscript for SimpleTranscript {
+    fn _get_128_bit_challenge(&mut self, label: &'static [u8]) -> Fr {
+        self.update(label);
+        let mut output = [0u8; 16];
+        self.finalize(&mut output);
+        Fr::from_random_bytes(&output).unwrap()
+    }
+
+    fn _get_128_bit_challenges(&mut self, label: &'static [u8], n: usize) -> Vec<Fr> {
+        (0..n).map(|_| self._get_128_bit_challenge(label)).collect() //TODO: unlikely secure
+    }
+
+    fn _append_serializable(&mut self, label: &'static [u8], message: &impl CanonicalSerialize) {
+        let mut buf = vec![0; message.compressed_size()];
+        message.serialize_compressed(&mut buf).unwrap();
+        [label, &buf].map(|x| self.update(x));
+    }
+}
+
+
+pub struct SimpleTranscriptRng { 
+    pub transcript: SimpleTranscript,
+}
+
+impl RngCore for SimpleTranscriptRng {
+    fn next_u32(&mut self) -> u32 {
+        rand_core::impls::next_u32_via_fill(self)
+    }
+
+    fn next_u64(&mut self) -> u64 {
+        rand_core::impls::next_u64_via_fill(self)
+    }
+
+    fn fill_bytes(&mut self, dest: &mut [u8]) {
+        let dest_len = encode_usize_as_u32(dest.len());
+        self.transcript.update(&dest_len);
+        self.transcript.finalize(dest);
+    }
+
+    fn try_fill_bytes(&mut self, dest: &mut [u8]) -> Result<(), rand::Error> {
+        self.fill_bytes(dest);
+        Ok(())
+    }
+}
+
+
+fn encode_usize_as_u32(x: usize) -> [u8; 4] {
+    use byteorder::{ByteOrder, LittleEndian};
+
+    assert!(x <= (u32::max_value() as usize));
+
+    let mut buf = [0; 4];
+    LittleEndian::write_u32(&mut buf, x as u32);
+    buf
 }

@@ -6,6 +6,7 @@ use ark_std::rand::Rng;
 use fflonk::pcs::PcsParams;
 use merlin::Transcript;
 
+use crate::transcript::SimpleTranscript;
 use crate::{Bitmask, Keyset, Proof, Prover, PublicInput, setup, Verifier};
 use crate::piop::{RegisterCommitments, RegisterEvaluations};
 
@@ -53,11 +54,11 @@ fn _test_prove_verify<P, V, PI, E, C, AC>(prove: P, verify: V, log_domain_size: 
         keyset,
         &pks_comm,
         kzg_params.clone(), //TODO
-        Transcript::new(b"apk_proof")
+        SimpleTranscript::new(b"apk_proof")
     );
     end_timer!(t_prover_new);
 
-    let verifier = Verifier::new(kzg_params.raw_vk(), pks_comm, Transcript::new(b"apk_proof"));
+    let verifier = Verifier::new(kzg_params.raw_vk(), pks_comm, SimpleTranscript::new(b"apk_proof"));
 
     let bits = (0..keyset_size).map(|_| rng.gen_bool(2.0 / 3.0)).collect::<Vec<_>>();
     let b = Bitmask::from_bits(&bits);

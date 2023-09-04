@@ -16,7 +16,7 @@ use rand::Rng;
 use apk_proofs::bls::{PublicKey, SecretKey, Signature};
 use apk_proofs::{
     hash_to_curve_g2, setup, AccountablePublicInput, Bitmask, Keyset, KeysetCommitment, Prover,
-    SimpleProof, Verifier,
+    SimpleProof, Verifier, SimpleTranscript
 };
 
 // This example sketches the primary intended use case of the crate functionality:
@@ -217,7 +217,7 @@ impl LightClient {
         let verifier = Verifier::new(
             self.kzg_vk.clone(),
             self.current_validator_set_commitment.clone(),
-            Transcript::new(b"apk_proof"),
+            SimpleTranscript::new(b"apk_proof")
         );
         assert!(verifier.verify_simple(&public_input, &proof));
         end_timer!(t_apk);
@@ -257,7 +257,7 @@ impl TrustlessHelper {
             Keyset::new(genesis_validator_set.raw_public_keys()),
             genesis_validator_set_commitment,
             kzg_params.clone(),
-            Transcript::new(b"apk_proof"),
+            SimpleTranscript::new(b"apk_proof"),
         );
         Self {
             kzg_params,
@@ -300,7 +300,7 @@ impl TrustlessHelper {
             Keyset::new(new_validator_set.raw_public_keys()),
             new_validator_set_commitment,
             self.kzg_params.clone(),
-            Transcript::new(b"apk_proof"),
+            SimpleTranscript::new(b"apk_proof"),
         );
 
         end_timer!(t_approval);

@@ -10,7 +10,7 @@ use ark_std::{test_rng, UniformRand};
 use criterion::{BenchmarkId, black_box, Criterion, criterion_group, criterion_main, Throughput};
 use fflonk::pcs::PcsParams;
 
-use apk_proofs::{Keyset, setup};
+use apk_proofs::{Keyset, setup, SimpleTranscript};
 
 fn barycentric_evaluation<F: Field>(c: &mut Criterion, n: u32) {
     use ark_poly::{Evaluations, EvaluationDomain, Radix2EvaluationDomain, Polynomial};
@@ -158,7 +158,7 @@ fn verification(c: &mut Criterion) {
             keyset,
             &pks_comm,
             kzg_params.clone(),
-            Transcript::new(b"apk_proof"),
+            SimpleTranscript::new(b"apk_proof"),
         );
         let proof_basic = prover.prove_simple(bitmask.clone());
         let proof_packed = prover.prove_packed(bitmask.clone());
@@ -168,7 +168,7 @@ fn verification(c: &mut Criterion) {
             Verifier::new(
                 kzg_params.raw_vk(),
                 pks_comm.clone(),
-                Transcript::new(b"apk_proof"),
+                SimpleTranscript::new(b"apk_proof"),
             )
         };
 

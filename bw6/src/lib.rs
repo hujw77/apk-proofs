@@ -26,6 +26,7 @@ use crate::piop::{RegisterCommitments, RegisterEvaluations};
 
 pub use self::prover::*;
 pub use self::verifier::*;
+pub use crate::transcript::{SimpleTranscript, SimpleTranscriptRng};
 
 pub mod endo;
 mod prover;
