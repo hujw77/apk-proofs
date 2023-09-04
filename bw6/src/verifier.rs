@@ -179,8 +179,24 @@ impl Verifier {
         commitments.extend(proof.register_commitments.as_vec());
         commitments.extend(proof.additional_commitments.as_vec());
         commitments.push(proof.q_comm);
+
+        println!("proof.q_comm: {}", proof.q_comm);
+
         // ...together with the corresponding values
         let mut register_evals = proof.register_evaluations.as_vec();
+
+        (0..register_evals.len()).for_each(|i| {
+            println!("proof.register_evaluation: {}", register_evals[i]);
+        });
+
+        println!("proof.q_zeta: {}", proof.q_zeta);
+        println!("proof.r_zeta_omega: {}", proof.r_zeta_omega);
+        println!("proof.w_at_zeta_proof: {}", proof.w_at_zeta_proof);
+        println!(
+            "proof.r_at_zeta_omega_proof: {}",
+            proof.r_at_zeta_omega_proof
+        );
+
         register_evals.push(proof.q_zeta);
         assert_eq!(commitments.len(), challenges.nus.len());
         assert_eq!(register_evals.len(), challenges.nus.len());
