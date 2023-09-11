@@ -92,7 +92,7 @@ impl ApkTranscript for Transcript {
     }
 
     fn _append_serializable(&mut self, label: &'static [u8], message: &impl CanonicalSerialize) {
-        let mut buf = vec![0; message.compressed_size()];
+        let mut buf: Vec<u8> = Vec::with_capacity(message.compressed_size());
         message.serialize_compressed(&mut buf).unwrap();
         self.append_message(label, &buf);
     }
@@ -143,7 +143,6 @@ impl ApkTranscript for SimpleTranscript {
     }
 
     fn _append_serializable(&mut self, label: &'static [u8], message: &impl CanonicalSerialize) {
-        // let mut buf = vec![0; message.compressed_size()];
         let mut buf: Vec<u8> = Vec::with_capacity(message.compressed_size());
         message.serialize_compressed(&mut buf).unwrap();
         println!(
