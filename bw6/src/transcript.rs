@@ -28,6 +28,10 @@ pub(crate) trait ApkTranscript {
     }
 
     fn append_public_input(&mut self, public_input: &impl PublicInput) {
+        println!("public_input");
+        // 96 "9ea33636de773b3fab28129e5611cd57aed9d413e84df03cb30a42b56714fffa5377efe2a13a61dc8acc39696812df000400000000000000
+        // dfffffbfeffbff7ffeffb5dffff7fffffffffffdfbfefffeeffbbfffff7bdf7f
+        // 0100000000000000"
         self._append_serializable(b"public_input", public_input);
     }
 
@@ -168,8 +172,14 @@ impl RngCore for SimpleTranscriptRng {
     }
 
     fn fill_bytes(&mut self, dest: &mut [u8]) {
+        println!("{:?} {:?}", dest.len(), array_bytes::bytes2hex("0x", &dest));
         let dest_len = encode_usize_as_u32(dest.len());
         self.transcript.update(&dest_len);
+        println!(
+            "{:?} {:?}",
+            dest_len,
+            array_bytes::bytes2hex("0x", &dest_len)
+        );
         self.transcript.finalize(dest);
     }
 
