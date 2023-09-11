@@ -289,6 +289,7 @@ impl Verifier {
         empty_transcript.set_protocol_params(&domain, &kzg_vk);
         empty_transcript.set_keyset_commitment(&pks_comm);
 
+        println!("kzg_vk: {:?}", kzg_vk);
         let kzg_pvk = kzg_vk.prepare();
         Self {
             domain,
