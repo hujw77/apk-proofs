@@ -17,9 +17,7 @@ pub(crate) trait ApkTranscript {
         domain: &Radix2EvaluationDomain<Fr>,
         kzg_vk: &RawKzgVerifierKey<BW6_761>,
     ) {
-        println!("domain:");
         self._append_serializable(b"domain", domain);
-        println!("vk:");
         self._append_serializable(b"vk", kzg_vk);
     }
 
@@ -28,10 +26,6 @@ pub(crate) trait ApkTranscript {
     }
 
     fn append_public_input(&mut self, public_input: &impl PublicInput) {
-        println!("public_input");
-        // 96 "9ea33636de773b3fab28129e5611cd57aed9d413e84df03cb30a42b56714fffa5377efe2a13a61dc8acc39696812df000400000000000000
-        // dfffffbfeffbff7ffeffb5dffff7fffffffffffdfbfefffeeffbbfffff7bdf7f
-        // 0100000000000000"
         self._append_serializable(b"public_input", public_input);
     }
 
@@ -112,6 +106,10 @@ impl SimpleTranscript {
         let buffer = Vec::new();
         let mut transcript = SimpleTranscript { buffer };
         transcript.update(message);
+        // println!(
+        //     "self: {:?}",
+        //     array_bytes::bytes2hex("0x", &transcript.buffer)
+        // );
         transcript
     }
 
@@ -127,8 +125,8 @@ impl SimpleTranscript {
         let mut keccak = Keccak::v256();
         keccak.update(&self.buffer);
         keccak.finalize(dest);
-        println!("self: {:?}", array_bytes::bytes2hex("0x", &self.buffer));
-        println!("output: {:?}", array_bytes::bytes2hex("0x", dest));
+        // println!("self: {:?}", array_bytes::bytes2hex("0x", &self.buffer));
+        // println!("output: {:?}", array_bytes::bytes2hex("0x", dest));
     }
 }
 
@@ -137,6 +135,7 @@ impl ApkTranscript for SimpleTranscript {
         self.update(label);
         let mut output = [0u8; 16];
         self.finalize(&mut output);
+        // println!("label: {}", String::from_utf8(label.to_vec()).unwrap());
         // println!("self: {:?}", array_bytes::bytes2hex("0x", &self.buffer));
         // println!("output: {:?}", array_bytes::bytes2hex("0x", output));
         Fr::from_random_bytes(&output).unwrap()
@@ -147,14 +146,16 @@ impl ApkTranscript for SimpleTranscript {
     }
 
     fn _append_serializable(&mut self, label: &'static [u8], message: &impl CanonicalSerialize) {
+        // println!("label: {}", String::from_utf8(label.to_vec()).unwrap());
         let mut buf: Vec<u8> = Vec::with_capacity(message.compressed_size());
         message.serialize_compressed(&mut buf).unwrap();
-        println!(
-            "{} {:?}",
-            message.compressed_size(),
-            array_bytes::bytes2hex("0x", &buf)
-        );
+        // println!(
+        //     "{} {:?}",
+        //     message.compressed_size(),
+        //     array_bytes::bytes2hex("0x", &buf)
+        // );
         [label, &buf].map(|x| self.update(x));
+        // println!("self: {:?}", array_bytes::bytes2hex("0x", &self.buffer));
     }
 }
 

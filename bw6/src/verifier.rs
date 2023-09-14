@@ -201,6 +201,8 @@ impl Verifier {
         assert_eq!(register_evals.len(), challenges.nus.len());
         let (w_comm, w_at_zeta) =
             aggregate_claims_multiexp(commitments, register_evals, &challenges.nus);
+        println!("w_comm: {w_comm}");
+        println!("w_at_zeta: {w_at_zeta}");
         end_timer!(t_aggregate_claims);
 
         let t_kzg_batch_opening = start_timer!(|| "batched KZG openning");
@@ -220,6 +222,7 @@ impl Verifier {
         let coeffs = [Fr::one(), u128::rand(fsrng).into()];
         println!("coeffs.1: {}", coeffs[1]);
         let acc_opening = NewKzgBw6::accumulate(openings, &coeffs, &self.kzg_pvk);
+        println!("acc_opening: {:?}", acc_opening);
         assert!(
             NewKzgBw6::verify_accumulated(acc_opening.clone(), &self.kzg_pvk),
             "KZG verification"

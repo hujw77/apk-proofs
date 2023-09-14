@@ -152,7 +152,25 @@ impl VerifierProtocol for AffineAdditionEvaluations {
         r_comm += commitments.0
             * (zeta_minus_omega_inv
                 * (b * (x1 - x2) * (x1 - x2) + b * (y1 - y2) * phi + (Fr::one() - b) * phi));
+
+        println!("zeta_minus_omega_inv: {zeta_minus_omega_inv}");
+        println!("b: {b}");
+        println!("x1: {x1}");
+        println!("x2: {x2}");
+        println!("y1: {y1}");
+        println!("y1: {y2}");
+        println!("phi: {phi}");
+        println!(
+            "0: {}",
+            (zeta_minus_omega_inv
+                * (b * (x1 - x2) * (x1 - x2) + b * (y1 - y2) * phi + (Fr::one() - b) * phi))
+        );
+        println!("r_comm0: {r_comm}");
+
         r_comm += commitments.1 * (zeta_minus_omega_inv * ((Fr::one() - b) + b * (x1 - x2) * phi));
+
+        println!("r_comm1: {r_comm}");
+
         r_comm
     }
 }

@@ -55,6 +55,8 @@ pub const DST_G2: &[u8] = b"APK-PROOF-with-BLS12377G2_XMD:SHA-256_SSWU_RO_";
 // TODO: 2. remove refs/clones
 pub trait PublicInput: CanonicalSerialize + CanonicalDeserialize {
     fn new(apk: &G1Affine, bitmask: &Bitmask) -> Self;
+
+    fn apk(&self) -> G1Affine;
 }
 
 // Used in 'basic' and 'packed' schemes
@@ -71,6 +73,10 @@ impl PublicInput for AccountablePublicInput {
             bitmask: bitmask.clone(),
         }
     }
+
+    fn apk(&self) -> G1Affine {
+        self.apk
+    }
 }
 
 // Used in 'counting' scheme
@@ -86,6 +92,10 @@ impl PublicInput for CountingPublicInput {
             apk: apk.clone(),
             count: bitmask.count_ones(),
         }
+    }
+
+    fn apk(&self) -> G1Affine {
+        self.apk
     }
 }
 
