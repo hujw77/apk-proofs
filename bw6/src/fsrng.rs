@@ -28,7 +28,7 @@ impl CryptoRng for DummyRng {}
 pub fn fiat_shamir_rng(transcript: &mut Transcript) -> TranscriptRng {
     transcript
         .build_rng()
-        .rekey_with_witness_bytes(b"verifier_secret", &[42])//TODO: Does verifier know secrets?
+        .rekey_with_witness_bytes(b"verifier_secret", &[42]) //TODO: Does verifier know secrets?
         .finalize(&mut DummyRng)
 }
 
@@ -43,7 +43,6 @@ pub fn simple_fiat_shamir_rng(transcript: &mut SimpleTranscript) -> SimpleTransc
         bytes
     };
     transcript.update(&random_bytes);
-    SimpleTranscriptRng {
-        transcript,
-    }
+
+    SimpleTranscriptRng { transcript }
 }

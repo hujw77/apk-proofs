@@ -220,7 +220,10 @@ impl Verifier {
         };
         let openings = vec![opening_at_zeta, opening_at_zeta_omega];
         let coeffs = [Fr::one(), u128::rand(fsrng).into()];
+        println!("coeffs.0: {}", coeffs[0]);
         println!("coeffs.1: {}", coeffs[1]);
+        println!("openings.0.y: {}", openings[0].y);
+        println!("openings.1.y: {}", openings[1].y);
         let acc_opening = NewKzgBw6::accumulate(openings, &coeffs, &self.kzg_pvk);
         println!("acc_opening: {:?}", acc_opening);
         assert!(

@@ -98,7 +98,7 @@ impl ApkTranscript for Transcript {
 
 #[derive(Debug, Clone)]
 pub struct SimpleTranscript {
-    buffer: Vec<u8>,
+    pub buffer: Vec<u8>,
 }
 
 impl SimpleTranscript {
@@ -176,6 +176,10 @@ impl RngCore for SimpleTranscriptRng {
         let bytes = [0u8; 8];
         self.transcript.update(&bytes);
         self.transcript.finalize(dest);
+        // println!(
+        //     "fsrng: {:?}",
+        //     array_bytes::bytes2hex("0x", &self.transcript.buffer)
+        // );
     }
 
     fn try_fill_bytes(&mut self, dest: &mut [u8]) -> Result<(), rand::Error> {

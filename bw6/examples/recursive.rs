@@ -319,6 +319,7 @@ impl TrustlessHelper {
 fn hash_commitment(commitment: &KeysetCommitment) -> G2Projective {
     let mut buf = vec![0u8; commitment.compressed_size()];
     commitment.serialize_compressed(&mut buf[..]).unwrap();
+    // println!("buf: {:?}", array_bytes::bytes2hex("0x", &buf));
     hash_to_curve_g2(&buf)
 }
 
