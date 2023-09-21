@@ -50,12 +50,6 @@ impl Verifier {
             proof,
             AffineAdditionEvaluations::POLYS_OPENED_AT_ZETA,
         );
-        println!("r: {}", challenges.r);
-        println!("phi: {}", challenges.phi);
-        println!("zeta: {}", challenges.zeta);
-        (0..AffineAdditionEvaluations::POLYS_OPENED_AT_ZETA).for_each(|i| {
-            println!("nus: {}", challenges.nus[i]);
-        });
         let evals_at_zeta = utils::lagrange_evaluations(challenges.zeta, self.domain);
 
         let t_linear_accountability = start_timer!(|| "linear accountability check");
@@ -111,7 +105,11 @@ impl Verifier {
                 &public_input.bitmask,
                 self.domain.size,
             );
+        for eval in &constraint_polynomial_evals {
+            println!("eval: {}", eval);
+        }
         let w = utils::horner_field(&constraint_polynomial_evals, challenges.phi);
+        println!("w: {}", w);
         proof.r_zeta_omega + w == proof.q_zeta * evals_at_zeta.vanishing_polynomial
     }
 
@@ -178,6 +176,8 @@ impl Verifier {
         commitments.extend(proof.register_commitments.as_vec());
         commitments.extend(proof.additional_commitments.as_vec());
         commitments.push(proof.q_comm);
+
+        println!("commitments: {:?}", &commitments);
 
         println!("proof.q_comm: {}", proof.q_comm);
 
@@ -265,6 +265,13 @@ impl Verifier {
             &proof.r_zeta_omega,
         );
         let nus = transcript.get_kzg_aggregation_challenges(batch_size);
+
+        println!("r: {}", r);
+        println!("phi: {}", phi);
+        println!("zeta: {}", zeta);
+        (0..batch_size).for_each(|i| {
+            println!("nus: {}", nus[i]);
+        });
         (
             Challenges { r, phi, zeta, nus },
             simple_fiat_shamir_rng(&mut transcript),

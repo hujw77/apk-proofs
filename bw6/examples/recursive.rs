@@ -16,8 +16,8 @@ use rand::Rng;
 
 use apk_proofs::bls::{PublicKey, SecretKey, Signature};
 use apk_proofs::{
-    hash_to_curve_g2, setup, AccountablePublicInput, Bitmask, Keyset, KeysetCommitment, Prover,
-    SimpleProof, SimpleTranscript, Verifier,
+    hash_to_curve_g2, setup, AccountablePublicInput, Bitmask, Keyset, KeysetCommitment,
+    PackedProof, Prover, SimpleTranscript, Verifier,
 };
 
 // This example sketches the primary intended use case of the crate functionality:
@@ -204,7 +204,7 @@ impl LightClient {
     fn verify_aggregates(
         &mut self,
         public_input: AccountablePublicInput,
-        proof: &SimpleProof,
+        proof: &PackedProof,
         aggregate_signature: &Signature,
         new_validator_set_commitment: KeysetCommitment,
     ) {
@@ -220,7 +220,7 @@ impl LightClient {
             self.current_validator_set_commitment.clone(),
             SimpleTranscript::new(b"apk_proof"),
         );
-        assert!(verifier.verify_simple(&public_input, &proof));
+        assert!(verifier.verify_packed(&public_input, &proof));
         end_timer!(t_apk);
 
         let t_bls = start_timer!(|| "aggregate BLS signature verification");
@@ -273,7 +273,7 @@ impl TrustlessHelper {
         approvals: Vec<Approval>,
     ) -> (
         AccountablePublicInput,
-        SimpleProof,
+        PackedProof,
         Signature,
         KeysetCommitment,
     ) {
@@ -292,7 +292,7 @@ impl TrustlessHelper {
 
         let (proof, public_input) = self
             .prover
-            .prove_simple(Bitmask::from_bits(&actual_signers_bitmask));
+            .prove_packed(Bitmask::from_bits(&actual_signers_bitmask));
         let signatures = approvals.iter().map(|a| &a.sig);
         let aggregate_signature = Signature::aggregate(signatures);
 
