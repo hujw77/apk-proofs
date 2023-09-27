@@ -15,8 +15,8 @@ use rand::Rng;
 
 use apk_proofs::bls::{PublicKey, SecretKey, Signature};
 use apk_proofs::{
-    hash_to_curve_g2, setup, AccountablePublicInput, Bitmask, Keyset, KeysetCommitment, Prover,
-    SimpleProof, Verifier, SimpleTranscript
+    hash_to_curve_g2, print_domain, print_rvk, setup, AccountablePublicInput, Bitmask, Keyset,
+    KeysetCommitment, Prover, SimpleProof, SimpleTranscript, Verifier,
 };
 
 // This example sketches the primary intended use case of the crate functionality:
@@ -217,8 +217,14 @@ impl LightClient {
         let verifier = Verifier::new(
             self.kzg_vk.clone(),
             self.current_validator_set_commitment.clone(),
-            SimpleTranscript::new(b"apk_proof")
+            SimpleTranscript::new(b"apk_proof"),
         );
+
+        #[cfg(feature = "gen-sol")]
+        print_domain(verifier.domain);
+
+        print_rvk(self.kzg_vk.clone());
+
         assert!(verifier.verify_simple(&public_input, &proof));
         end_timer!(t_apk);
 
