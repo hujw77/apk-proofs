@@ -28,24 +28,24 @@ static SIMPLE_PROOF_TEMPLATE: &str = "
             register_commitments: [
                 Bw6G1(\\{
                     x: Bw6Fp(\\{
-                        a: {register_commitments.0.x.a}
+                        a: {register_commitments.0.x.a},
                         b: {register_commitments.0.x.b},
                         c: {register_commitments.0.x.c}
                     }),
                     y: Bw6Fp(\\{
-                        a: {register_commitments.0.y.a}
+                        a: {register_commitments.0.y.a},
                         b: {register_commitments.0.y.b},
                         c: {register_commitments.0.y.c}
                     })
                 }),
                 Bw6G1(\\{
                     x: Bw6Fp(\\{
-                        a: {register_commitments.1.x.a}
+                        a: {register_commitments.1.x.a},
                         b: {register_commitments.1.x.b},
                         c: {register_commitments.1.x.c}
                     }),
                     y: Bw6Fp(\\{
-                        a: {register_commitments.1.y.a}
+                        a: {register_commitments.1.y.a},
                         b: {register_commitments.1.y.b},
                         c: {register_commitments.1.y.c}
                     })

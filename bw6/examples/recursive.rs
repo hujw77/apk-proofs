@@ -15,8 +15,8 @@ use rand::Rng;
 
 use apk_proofs::bls::{PublicKey, SecretKey, Signature};
 use apk_proofs::{
-    hash_to_curve_g2, setup, AccountablePublicInput, Bitmask, Keyset, KeysetCommitment, Prover,
-    SimpleProof, SimpleTranscript, Verifier,
+    hash_to_curve_g2, setup, AccountablePublicInput, Bitmask, Keyset, KeysetCommitment,
+    PackedProof, Prover, SimpleTranscript, Verifier,
 };
 
 // This example sketches the primary intended use case of the crate functionality:
@@ -203,7 +203,7 @@ impl LightClient {
     fn verify_aggregates(
         &mut self,
         public_input: AccountablePublicInput,
-        proof: &SimpleProof,
+        proof: &PackedProof,
         aggregate_signature: &Signature,
         new_validator_set_commitment: KeysetCommitment,
     ) {
@@ -223,8 +223,8 @@ impl LightClient {
         #[cfg(feature = "gen-sol")]
         {
             use apk_proofs::{
-                print_asig, print_domain, print_pks_comm, print_public_input, print_rvk,
-                print_simple_proof,
+                print_asig, print_domain, print_packed_proof, print_pks_comm, print_public_input,
+                print_rvk,
             };
 
             println!("domain");
@@ -239,11 +239,11 @@ impl LightClient {
             print_public_input(&public_input);
             println!("aggregate_signature");
             print_asig(aggregate_signature.clone());
-            println!("simple_proof");
-            print_simple_proof(&proof);
+            println!("packed_proof");
+            print_packed_proof(&proof);
         }
 
-        assert!(verifier.verify_simple(&public_input, &proof));
+        assert!(verifier.verify_packed(&public_input, &proof));
         end_timer!(t_apk);
 
         let t_bls = start_timer!(|| "aggregate BLS signature verification");
@@ -296,7 +296,7 @@ impl TrustlessHelper {
         approvals: Vec<Approval>,
     ) -> (
         AccountablePublicInput,
-        SimpleProof,
+        PackedProof,
         Signature,
         KeysetCommitment,
     ) {
@@ -315,7 +315,7 @@ impl TrustlessHelper {
 
         let (proof, public_input) = self
             .prover
-            .prove_simple(Bitmask::from_bits(&actual_signers_bitmask));
+            .prove_packed(Bitmask::from_bits(&actual_signers_bitmask));
         let signatures = approvals.iter().map(|a| &a.sig);
         let aggregate_signature = Signature::aggregate(signatures);
 

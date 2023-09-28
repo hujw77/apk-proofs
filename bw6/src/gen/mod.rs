@@ -1,5 +1,6 @@
 pub mod asig;
 pub mod domain;
+pub mod packed_proof;
 pub mod pks_comm;
 pub mod public_input;
 pub mod rvk;
@@ -7,6 +8,7 @@ pub mod simple_proof;
 
 pub use self::asig::*;
 pub use self::domain::*;
+pub use self::packed_proof::*;
 pub use self::pks_comm::*;
 pub use self::public_input::*;
 pub use self::rvk::*;
