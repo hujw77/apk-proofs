@@ -41,8 +41,8 @@ pub mod domains;
 mod fsrng;
 mod piop;
 
-pub mod generator;
-pub use self::generator::*;
+pub mod gen;
+pub use self::gen::*;
 
 mod bitmask;
 mod keyset;

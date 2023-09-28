@@ -1,54 +1,13 @@
-use ark_bw6_761::{Fr, BW6_761};
+use ark_bw6_761::BW6_761;
 use ark_ff::BigInteger;
 use ark_ff::PrimeField;
-use ark_poly::Radix2EvaluationDomain;
 use fflonk::pcs::kzg::params::RawKzgVerifierKey;
 use serde::Serialize;
 use serde_hex::{SerHexSeq, StrictPfx};
 use tinytemplate::TinyTemplate;
 
 #[derive(Serialize)]
-struct Domain {
-    size: u64,
-    log_size_of_group: u32,
-    #[serde(with = "SerHexSeq::<StrictPfx>")]
-    h_size_inv: Vec<u8>,
-    #[serde(with = "SerHexSeq::<StrictPfx>")]
-    l_size_inv: Vec<u8>,
-    #[serde(with = "SerHexSeq::<StrictPfx>")]
-    h_group_gen: Vec<u8>,
-    #[serde(with = "SerHexSeq::<StrictPfx>")]
-    l_group_gen: Vec<u8>,
-    #[serde(with = "SerHexSeq::<StrictPfx>")]
-    h_group_gen_inv: Vec<u8>,
-    #[serde(with = "SerHexSeq::<StrictPfx>")]
-    l_group_gen_inv: Vec<u8>,
-}
-
-static DOMAIN_TEMPLATE: &str = "
-    function init() public pure returns (Radix2EvaluationDomain memory) \\{
-        return Radix2EvaluationDomain(\\{
-            size: {size},
-            log_size_of_group: {log_size_of_group},
-            size_as_field_element: Bw6Fr(0, {size}),
-            size_inv: Bw6Fr(
-				{h_size_inv}, {l_size_inv}
-                ),
-            group_gen: Bw6Fr(
-				{h_group_gen}, {l_group_gen}
-                ),
-            group_gen_inv: Bw6Fr(
-				{h_group_gen_inv}, {l_group_gen_inv}
-                ),
-            offset: BW6FR.one(),
-            offset_inv: BW6FR.one(),
-            offset_pow_size: BW6FR.one()
-        });
-    }
-";
-
-#[derive(Serialize)]
-struct RVK {
+struct Rvk {
     #[serde(with = "SerHexSeq::<StrictPfx>")]
     h_g1_x: Vec<u8>,
     #[serde(with = "SerHexSeq::<StrictPfx>")]
@@ -129,33 +88,6 @@ static RVK_TEMPLATE: &str = "
     }
 ";
 
-pub fn print_domain(domain: Radix2EvaluationDomain<Fr>) {
-    let mut tt = TinyTemplate::new();
-    tt.add_template("domain", DOMAIN_TEMPLATE).unwrap();
-
-    let size_inv = domain.size_inv.into_bigint().to_bytes_be();
-    let (h_size_inv, l_size_inv) = size_inv.split_at(size_inv.len() - 32);
-
-    let group_gen = domain.group_gen.into_bigint().to_bytes_be();
-    let (h_group_gen, l_group_gen) = group_gen.split_at(group_gen.len() - 32);
-
-    let group_gen_inv = domain.group_gen_inv.into_bigint().to_bytes_be();
-    let (h_group_gen_inv, l_group_gen_inv) = group_gen_inv.split_at(group_gen_inv.len() - 32);
-    let context = Domain {
-        size: domain.size,
-        log_size_of_group: domain.log_size_of_group,
-        h_size_inv: h_size_inv.to_vec(),
-        l_size_inv: l_size_inv.to_vec(),
-        h_group_gen: h_group_gen.to_vec(),
-        l_group_gen: l_group_gen.to_vec(),
-        h_group_gen_inv: h_group_gen_inv.to_vec(),
-        l_group_gen_inv: l_group_gen_inv.to_vec(),
-    };
-
-    let rendered = tt.render("domain", &context).unwrap();
-    println!("{}", rendered);
-}
-
 pub fn print_rvk(rvk: RawKzgVerifierKey<BW6_761>) {
     let mut tt = TinyTemplate::new();
     tt.add_template("rvk", RVK_TEMPLATE).unwrap();
@@ -187,7 +119,7 @@ pub fn print_rvk(rvk: RawKzgVerifierKey<BW6_761>) {
     let (r_g2_tau_y, l_g2_tau_y) = g2_tau_y.split_at(g2_tau_y.len() - 32);
     let (h_g2_tau_y, m_g2_tau_y) = r_g2_tau_y.split_at(r_g2_tau_y.len() - 32);
 
-    let context = RVK {
+    let context = Rvk {
         h_g1_x: h_g1_x.to_vec(),
         m_g1_x: m_g1_x.to_vec(),
         l_g1_x: l_g1_x.to_vec(),
