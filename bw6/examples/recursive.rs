@@ -222,7 +222,10 @@ impl LightClient {
 
         #[cfg(feature = "gen-sol")]
         {
-            use apk_proofs::{print_domain, print_pks_comm, print_public_input, print_rvk};
+            use apk_proofs::{
+                print_asig, print_domain, print_pks_comm, print_public_input, print_rvk,
+                print_simple_proof,
+            };
 
             println!("domain");
             print_domain(verifier.domain);
@@ -234,6 +237,10 @@ impl LightClient {
             print_pks_comm(new_validator_set_commitment.clone());
             println!("public_input");
             print_public_input(&public_input);
+            println!("aggregate_signature");
+            print_asig(aggregate_signature.clone());
+            println!("simple_proof");
+            print_simple_proof(&proof);
         }
 
         assert!(verifier.verify_simple(&public_input, &proof));
